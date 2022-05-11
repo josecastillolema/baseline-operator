@@ -1,0 +1,6 @@
+apiVersion: perf.baseline.io/v1
+kind: Baseline
+metadata:
+  name: baseline-sample
+spec:
+  # TODO(user): Add fields here

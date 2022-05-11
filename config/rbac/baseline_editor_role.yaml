@@ -1,0 +1,24 @@
+# permissions for end users to edit baselines.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: baseline-editor-role
+rules:
+- apiGroups:
+  - perf.baseline.io
+  resources:
+  - baselines
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - perf.baseline.io
+  resources:
+  - baselines/status
+  verbs:
+  - get
