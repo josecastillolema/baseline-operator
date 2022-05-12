@@ -4,3 +4,4 @@ metadata:
   name: baseline-sample
 spec:
   cpu: 1
+  memory: 1G

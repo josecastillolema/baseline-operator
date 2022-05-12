@@ -36,15 +36,13 @@ spec:
             description: BaselineSpec defines the desired state of Baseline
             properties:
               cpu:
-                description: Foo is an example field of Baseline. Edit baseline_types.go
-                  to remove/update
+                description: Cpu is the the number of cores
                 format: int32
+                minimum: 1
                 type: integer
               memory:
+                description: Memory is the ammount of memory
                 type: string
-            required:
-            - cpu
-            - memory
             type: object
           status:
             description: BaselineStatus defines the observed state of Baseline

@@ -17,6 +17,7 @@ limitations under the License.
 package controllers
 
 import (
+	"fmt"
 	"strconv"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -124,6 +125,15 @@ func present(commands []string, cpu int32) bool {
 func (r *BaselineReconciler) daemonsetForBaseline(m *perfv1.Baseline) *appsv1.DaemonSet {
 	ls := labelsForBaseline(m.Name)
 	cpu := strconv.Itoa(int(m.Spec.Cpu))
+	mem := m.Spec.Memory
+	command := []string{"stress-ng", "--timeout", "0"}
+	if cpu != "0" {
+		command = append(command, "--cpu", cpu)
+	}
+	if mem != "" {
+		command = append(command, "--vm", "1", "--vm-bytes", mem)
+	}
+	fmt.Println("AKI", "mem", mem)
 
 	ds := &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
@@ -142,11 +152,7 @@ func (r *BaselineReconciler) daemonsetForBaseline(m *perfv1.Baseline) *appsv1.Da
 					Containers: []corev1.Container{{
 						Image:   "quay.io/cloud-bulldozer/stressng:latest",
 						Name:    "stressng",
-						Command: []string{"stress-ng", "--timeout", "0", "--cpu", cpu},
-						Ports: []corev1.ContainerPort{{
-							ContainerPort: 11211,
-							Name:          "memcached",
-						}},
+						Command: command,
 					}},
 				},
 			},

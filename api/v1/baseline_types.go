@@ -25,10 +25,12 @@ import (
 
 // BaselineSpec defines the desired state of Baseline
 type BaselineSpec struct {
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of Baseline. Edit baseline_types.go to remove/update
-	Cpu    int32  `json:"cpu"`
+	//+kubebuilder:validation:Optional
+	//+kubebuilder:validation:Minimum=1
+	// Cpu is the the number of cores
+	Cpu int32 `json:"cpu"`
+	//+kubebuilder:validation:Optional
+	// Memory is the ammount of memory
 	Memory string `json:"memory"`
 }
 
