@@ -79,7 +79,7 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			log.Error(err, "Failed to create new DaemonSet", "DaemonSet.Namespace", dep.Namespace, "DaemonSet.Name", dep.Name)
 			return ctrl.Result{}, err
 		}
-		// Deployment created successfully - return and requeue
+		// Daemonset created successfully - return and requeue
 		return ctrl.Result{Requeue: true}, nil
 	} else if err != nil {
 		log.Error(err, "Failed to get DaemonSet")
@@ -89,7 +89,21 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	// Ensure the stressng parameters are the same as in the spec
 	cpu := baseline.Spec.Cpu
 	if !present(*&found.Spec.Template.Spec.Containers[0].Command, cpu) {
-		log.Info("Recreating the DaemonSet with the new cpu param")
+		// Define a new daemonset
+		dep := r.daemonsetForBaseline(baseline)
+		log.Info("Recreating the DaemonSet with the new cpu param", "cpu", cpu, "DaemonSet.Namespace", dep.Namespace, "DaemonSet.Name", dep.Name)
+		err = r.Delete(ctx, dep)
+		if err != nil {
+			log.Error(err, "Failed to delete previous DaemonSet", "DaemonSet.Namespace", dep.Namespace, "DaemonSet.Name", dep.Name)
+			return ctrl.Result{}, err
+		}
+		err = r.Create(ctx, dep)
+		if err != nil {
+			log.Error(err, "Failed to recreate DaemonSet", "DaemonSet.Namespace", dep.Namespace, "DaemonSet.Name", dep.Name)
+			return ctrl.Result{}, err
+		}
+		// Daemonset recreated successfully - return and requeue
+		return ctrl.Result{Requeue: true}, nil
 	}
 
 	return ctrl.Result{}, nil

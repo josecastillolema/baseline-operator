@@ -40,8 +40,11 @@ spec:
                   to remove/update
                 format: int32
                 type: integer
+              memory:
+                type: string
             required:
             - cpu
+            - memory
             type: object
           status:
             description: BaselineStatus defines the observed state of Baseline

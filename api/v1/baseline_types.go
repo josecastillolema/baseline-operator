@@ -25,16 +25,15 @@ import (
 
 // BaselineSpec defines the desired state of Baseline
 type BaselineSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of Baseline. Edit baseline_types.go to remove/update
-	Cpu int32 `json:"cpu"`
+	Cpu    int32  `json:"cpu"`
+	Memory string `json:"memory"`
 }
 
 // BaselineStatus defines the observed state of Baseline
 type BaselineStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 }
 
