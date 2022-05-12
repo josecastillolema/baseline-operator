@@ -19,7 +19,8 @@ $ kubectl apply -f config/samples/perf_v1_baseline.yaml
 baseline.perf.baseline.io/baseline-sample configured
 
 $ kubectl get baseline
-baseline-sample-nnq5b   1/1     Running   0          1m
+NAME              AGE
+baseline-sample   26m
 ```
 
 Check for the daemonset:
