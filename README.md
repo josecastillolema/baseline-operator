@@ -14,6 +14,7 @@ metadata:
   name: baseline-sample
 spec:
   cpu: 1
+  memory: 1G
 ```
 
 ```
@@ -40,7 +41,7 @@ baseline-sample-nnq5b   1/1     Running   0          1m
 
 $ kubectl logs baseline-sample-nnq5b 
 stress-ng: info:  [1] setting to a 0 second run per stressor
-stress-ng: info:  [1] dispatching hogs: 1 cpu
+stress-ng: info:  [1] dispatching hogs: 1 cpu, 1 vm
 ```
 
 Update a parameter of the CRD:
@@ -55,7 +56,7 @@ baseline-sample-xvxc9   0/1     ContainerCreating   0          1s
 
 $ kubectl logs baseline-sample-xvxc9
 stress-ng: info:  [1] setting to a 0 second run per stressor
-stress-ng: info:  [1] dispatching hogs: 2 cpu
+stress-ng: info:  [1] dispatching hogs: 2 cpu, 1 vm
 ```
 
 ## Installation
