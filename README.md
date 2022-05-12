@@ -43,6 +43,21 @@ stress-ng: info:  [1] setting to a 0 second run per stressor
 stress-ng: info:  [1] dispatching hogs: 1 cpu
 ```
 
+Update a parameter of the CRD:
+```
+$ kubectl patch baseline baseline-sample --type merge -p '{"spec":{"cpu":2}}'
+baseline.perf.baseline.io/baseline-sample patched
+
+$ kubectl get po
+NAME                    READY   STATUS              RESTARTS   AGE
+baseline-sample-nnq5b   1/1     Terminating         0          5m
+baseline-sample-xvxc9   0/1     ContainerCreating   0          1s
+
+$ kubectl logs baseline-sample-xvxc9
+stress-ng: info:  [1] setting to a 0 second run per stressor
+stress-ng: info:  [1] dispatching hogs: 2 cpu
+```
+
 ## Installation
 
 ```
