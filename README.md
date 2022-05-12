@@ -1,6 +1,6 @@
 # baseline-operator
 
-The baseline-operator provides a way to run a [stress-ng](https://wiki.ubuntu.com/Kernel/Reference/stress-ng) workloads on Kubernetes in various deployment configurations.
+The baseline-operator provides a way to run a [stress-ng](https://wiki.ubuntu.com/Kernel/Reference/stress-ng) workloads on Kubernetes in various deployment configurations. Is is intended to create an artificial baseline load in a Kubernetes cluster as a base to run other Kubernetes tests in more realistic conditions (a performance test, a Kubernetes upgrade test, etc.).
 
 ## Use
 
