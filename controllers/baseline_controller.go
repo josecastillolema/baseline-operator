@@ -17,6 +17,8 @@ limitations under the License.
 package controllers
 
 import (
+	"strconv"
+
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -84,12 +86,30 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{}, err
 	}
 
+	// Ensure the stressng parameters are the same as in the spec
+	cpu := baseline.Spec.Cpu
+	if !present(*&found.Spec.Template.Spec.Containers[0].Command, cpu) {
+		log.Info("Recreating the DaemonSet with the new cpu param")
+	}
+
 	return ctrl.Result{}, nil
+}
+
+func present(commands []string, cpu int32) bool {
+	for i, n := range commands {
+		if "--cpu" == n {
+			if commands[i+1] == strconv.Itoa(int(cpu)) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // daemonsetForBaseline returns a baseline DaemonSet object
 func (r *BaselineReconciler) daemonsetForBaseline(m *perfv1.Baseline) *appsv1.DaemonSet {
 	ls := labelsForBaseline(m.Name)
+	cpu := strconv.Itoa(int(m.Spec.Cpu))
 
 	ds := &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
@@ -106,9 +126,9 @@ func (r *BaselineReconciler) daemonsetForBaseline(m *perfv1.Baseline) *appsv1.Da
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image:   "memcached:1.4.36-alpine",
-						Name:    "memcached",
-						Command: []string{"memcached", "-m=64", "-o", "modern", "-v"},
+						Image:   "quay.io/cloud-bulldozer/stressng:latest",
+						Name:    "stressng",
+						Command: []string{"stress-ng", "--timeout", "0", "--cpu", cpu},
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: 11211,
 							Name:          "memcached",

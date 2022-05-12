@@ -3,4 +3,4 @@ kind: Baseline
 metadata:
   name: baseline-sample
 spec:
-  # TODO(user): Add fields here
+  cpu: 1

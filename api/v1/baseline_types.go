@@ -29,7 +29,7 @@ type BaselineSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of Baseline. Edit baseline_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Cpu int32 `json:"cpu"`
 }
 
 // BaselineStatus defines the observed state of Baseline
