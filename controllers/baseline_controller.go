@@ -99,7 +99,7 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	custom := baseline.Spec.Custom
 	command := *&found.Spec.Template.Spec.Containers[0].Command
 	updateCpu := ((cpu != 0) && !present(command, "--cpu", strconv.Itoa(int(cpu)), 1)) || ((cpu == 0) && strings.Contains(strings.Join(command, " "), "--cpu"))
-	notMem := (mem != "") && !present(command, "--vm", mem, 3)
+	notMem := ((mem != "") && !present(command, "--vm", mem, 3)) || ((mem == "") && strings.Contains(strings.Join(command, " "), "--vm"))
 	if updateCpu || notMem || !strings.Contains(strings.Join(command, " "), custom) {
 		// Define a new daemonset
 		ds := r.daemonsetForBaseline(baseline)
