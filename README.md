@@ -23,7 +23,7 @@ baseline.perf.baseline.io/baseline-sample configured
 
 $ kubectl get baseline
 NAME              AGE
-baseline-sample   26m
+baseline-sample   1m
 ```
 
 Check for the daemonset:
