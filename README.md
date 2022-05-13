@@ -71,5 +71,5 @@ stress-ng: info:  [1] dispatching hogs: 2 cpu, 1 vm, 1 timer
 ```
 $ git clone https://github.com/josecastillolema/baseline-operator
 $ cd baseline-operator
-$ make deploy IMG="josecastillolema/baseline-operator:v0.6"
+$ make deploy
 ```
