@@ -51,7 +51,7 @@ $ kubectl get -o template baseline/baseline-sample --template={{.status.command}
 stress-ng --timeout 0 --cpu 1 --vm 1 --vm-bytes 1G --timer 1
 ```
 
-Update a parameter of the CRD:
+Update or delete a parameter from the CRD:
 ```
 $ kubectl patch baseline baseline-sample --type merge -p '{"spec":{"cpu":2}}'
 baseline.perf.baseline.io/baseline-sample patched
