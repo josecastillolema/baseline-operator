@@ -46,6 +46,11 @@ spec:
             type: object
           status:
             description: BaselineStatus defines the observed state of Baseline
+            properties:
+              command:
+                type: string
+            required:
+            - command
             type: object
         type: object
     served: true

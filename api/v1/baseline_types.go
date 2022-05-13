@@ -20,7 +20,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
+// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!s
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // BaselineSpec defines the desired state of Baseline
@@ -36,12 +36,12 @@ type BaselineSpec struct {
 
 // BaselineStatus defines the observed state of Baseline
 type BaselineStatus struct {
-	// Important: Run "make" to regenerate code after modifying this file
+	Command string `json:"command"`
 }
 
 //+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
 
+//+kubebuilder:subresource:status
 // Baseline is the Schema for the baselines API
 type Baseline struct {
 	metav1.TypeMeta   `json:",inline"`

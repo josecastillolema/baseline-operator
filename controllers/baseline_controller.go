@@ -17,8 +17,8 @@ limitations under the License.
 package controllers
 
 import (
-	"fmt"
 	"strconv"
+	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -73,14 +73,20 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	err = r.Get(ctx, types.NamespacedName{Name: baseline.Name, Namespace: baseline.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new daemonset
-		dep := r.daemonsetForBaseline(baseline)
-		log.Info("Creating a new DaemonSet", "DaemonSet.Namespace", dep.Namespace, "DaemonSet.Name", dep.Name)
-		err = r.Create(ctx, dep)
+		ds := r.daemonsetForBaseline(baseline)
+		log.Info("Creating a new DaemonSet", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
+		err = r.Create(ctx, ds)
 		if err != nil {
-			log.Error(err, "Failed to create new DaemonSet", "DaemonSet.Namespace", dep.Namespace, "DaemonSet.Name", dep.Name)
+			log.Error(err, "Failed to create new DaemonSet", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
 			return ctrl.Result{}, err
 		}
-		// Daemonset created successfully - return and requeue
+		// Daemonset created successfully - update status, return and requeue
+		baseline.Status.Command = strings.Join(ds.Spec.Template.Spec.Containers[0].Command, " ")
+		err := r.Status().Update(ctx, baseline)
+		if err != nil {
+			log.Error(err, "Failed to update Baseline status")
+			return ctrl.Result{}, err
+		}
 		return ctrl.Result{Requeue: true}, nil
 	} else if err != nil {
 		log.Error(err, "Failed to get DaemonSet")
@@ -91,16 +97,16 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	cpu := baseline.Spec.Cpu
 	if !present(*&found.Spec.Template.Spec.Containers[0].Command, cpu) {
 		// Define a new daemonset
-		dep := r.daemonsetForBaseline(baseline)
-		log.Info("Recreating the DaemonSet with the new cpu param", "cpu", cpu, "DaemonSet.Namespace", dep.Namespace, "DaemonSet.Name", dep.Name)
-		err = r.Delete(ctx, dep)
+		ds := r.daemonsetForBaseline(baseline)
+		log.Info("Recreating the DaemonSet with the new cpu param", "cpu", cpu, "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
+		err = r.Delete(ctx, ds)
 		if err != nil {
-			log.Error(err, "Failed to delete previous DaemonSet", "DaemonSet.Namespace", dep.Namespace, "DaemonSet.Name", dep.Name)
+			log.Error(err, "Failed to delete previous DaemonSet", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
 			return ctrl.Result{}, err
 		}
-		err = r.Create(ctx, dep)
+		err = r.Create(ctx, ds)
 		if err != nil {
-			log.Error(err, "Failed to recreate DaemonSet", "DaemonSet.Namespace", dep.Namespace, "DaemonSet.Name", dep.Name)
+			log.Error(err, "Failed to recreate DaemonSet", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
 			return ctrl.Result{}, err
 		}
 		// Daemonset recreated successfully - return and requeue
@@ -122,10 +128,10 @@ func present(commands []string, cpu int32) bool {
 }
 
 // daemonsetForBaseline returns a baseline DaemonSet object
-func (r *BaselineReconciler) daemonsetForBaseline(m *perfv1.Baseline) *appsv1.DaemonSet {
-	ls := labelsForBaseline(m.Name)
-	cpu := strconv.Itoa(int(m.Spec.Cpu))
-	mem := m.Spec.Memory
+func (r *BaselineReconciler) daemonsetForBaseline(b *perfv1.Baseline) *appsv1.DaemonSet {
+	ls := labelsForBaseline(b.Name)
+	cpu := strconv.Itoa(int(b.Spec.Cpu))
+	mem := b.Spec.Memory
 	command := []string{"stress-ng", "--timeout", "0"}
 	if cpu != "0" {
 		command = append(command, "--cpu", cpu)
@@ -133,12 +139,11 @@ func (r *BaselineReconciler) daemonsetForBaseline(m *perfv1.Baseline) *appsv1.Da
 	if mem != "" {
 		command = append(command, "--vm", "1", "--vm-bytes", mem)
 	}
-	fmt.Println("AKI", "mem", mem)
 
 	ds := &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      m.Name,
-			Namespace: m.Namespace,
+			Name:      b.Name,
+			Namespace: b.Namespace,
 		},
 		Spec: appsv1.DaemonSetSpec{
 			Selector: &metav1.LabelSelector{
@@ -159,7 +164,7 @@ func (r *BaselineReconciler) daemonsetForBaseline(m *perfv1.Baseline) *appsv1.Da
 		},
 	}
 	// Set Baseline instance as the owner and controller
-	ctrl.SetControllerReference(m, ds, r.Scheme)
+	ctrl.SetControllerReference(b, ds, r.Scheme)
 	return ds
 }
 
