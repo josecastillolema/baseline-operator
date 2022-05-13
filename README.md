@@ -44,6 +44,12 @@ stress-ng: info:  [1] setting to a 0 second run per stressor
 stress-ng: info:  [1] dispatching hogs: 1 cpu, 1 vm
 ```
 
+The resulting command is stored in the status of the CRD:
+```
+$ kubectl get -o template baseline/baseline-sample --template={{.status.command}}
+stress-ng --timeout 0 --cpu 1 --vm 1 --vm-bytes 1G
+```
+
 Update a parameter of the CRD:
 ```
 $ kubectl patch baseline baseline-sample --type merge -p '{"spec":{"cpu":2}}'
