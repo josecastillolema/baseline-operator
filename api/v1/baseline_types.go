@@ -32,6 +32,9 @@ type BaselineSpec struct {
 	//+kubebuilder:validation:Optional
 	// Memory is the ammount of memory
 	Memory string `json:"memory"`
+	//+kubebuilder:validation:Optional
+	// Custom is a custom string to pass to stress-ng
+	Custom string `json:"custom"`
 }
 
 // BaselineStatus defines the observed state of Baseline

@@ -95,10 +95,15 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 	// Ensure the stressng parameters are the same as in the spec
 	cpu := baseline.Spec.Cpu
-	if !present(*&found.Spec.Template.Spec.Containers[0].Command, cpu) {
+	mem := baseline.Spec.Memory
+	custom := baseline.Spec.Custom
+	command := *&found.Spec.Template.Spec.Containers[0].Command
+	updateCpu := ((cpu != 0) && !present(command, "--cpu", strconv.Itoa(int(cpu)), 1)) || ((cpu == 0) && strings.Contains(strings.Join(command, " "), "--cpu"))
+	notMem := (mem != "") && !present(command, "--vm", mem, 3)
+	if updateCpu || notMem || !strings.Contains(strings.Join(command, " "), custom) {
 		// Define a new daemonset
 		ds := r.daemonsetForBaseline(baseline)
-		log.Info("Recreating the DaemonSet with the new cpu param", "cpu", cpu, "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
+		log.Info("Recreating the DaemonSet with the new CRD param", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
 		err = r.Delete(ctx, ds)
 		if err != nil {
 			log.Error(err, "Failed to delete previous DaemonSet", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
@@ -109,17 +114,27 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			log.Error(err, "Failed to recreate DaemonSet", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
 			return ctrl.Result{}, err
 		}
-		// Daemonset recreated successfully - return and requeue
+		// Daemonset recreated successfully - update status, return and requeue
+		baseline.Status.Command = strings.Join(ds.Spec.Template.Spec.Containers[0].Command, " ")
+		err := r.Status().Update(ctx, baseline)
+		if err != nil {
+			log.Error(err, "Failed to update Baseline status")
+			return ctrl.Result{}, err
+		}
 		return ctrl.Result{Requeue: true}, nil
 	}
 
 	return ctrl.Result{}, nil
 }
 
-func present(commands []string, cpu int32) bool {
+// present returns if the item has the corresponding value
+func present(commands []string, item string, value string, shift int) bool {
+	if shift > len(commands) {
+		return false
+	}
 	for i, n := range commands {
-		if "--cpu" == n {
-			if commands[i+1] == strconv.Itoa(int(cpu)) {
+		if item == n {
+			if (i+shift < len(commands)) && (commands[i+shift] == value) {
 				return true
 			}
 		}
@@ -132,12 +147,16 @@ func (r *BaselineReconciler) daemonsetForBaseline(b *perfv1.Baseline) *appsv1.Da
 	ls := labelsForBaseline(b.Name)
 	cpu := strconv.Itoa(int(b.Spec.Cpu))
 	mem := b.Spec.Memory
+	custom := b.Spec.Custom
 	command := []string{"stress-ng", "--timeout", "0"}
 	if cpu != "0" {
 		command = append(command, "--cpu", cpu)
 	}
 	if mem != "" {
 		command = append(command, "--vm", "1", "--vm-bytes", mem)
+	}
+	if custom != "" {
+		command = append(command, strings.Split(custom, " ")...)
 	}
 
 	ds := &appsv1.DaemonSet{

@@ -40,6 +40,9 @@ spec:
                 format: int32
                 minimum: 1
                 type: integer
+              custom:
+                description: Custom is a custom string to pass to stress-ng
+                type: string
               memory:
                 description: Memory is the ammount of memory
                 type: string
