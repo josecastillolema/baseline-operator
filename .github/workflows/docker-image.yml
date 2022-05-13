@@ -15,9 +15,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Login in DockerHub
-      run: docker login quay.io -u ${DOCKERHUB_USER} -p ${DOCKERHUB_TOKEN}
+      run: docker login -u ${DOCKERHUB_USER} -p ${DOCKERHUB_TOKEN}
       env:
         DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}
         DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Build the Docker image
+    - name: Build and push the Docker image
       run: make docker-build docker-push
