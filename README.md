@@ -75,6 +75,17 @@ stress-ng: info:  [1] setting to a 0 second run per stressor
 stress-ng: info:  [1] dispatching hogs: 2 cpu, 1 vm, 1 timer
 ```
 
+Check for the CRDs events:
+```
+$ kubectl describe baseline baseline-sample
+...
+Events:
+  Type    Reason     Age    From      Message
+  ----    ------     ----   ----      -------
+  Normal  Created    5m20s  Baseline  Created daemonset default/baseline-sample
+  Normal  Recreated  4s     Baseline  Rereated daemonset default/baseline-sample
+```
+
 ## Node placement
 
 If you specify node selector(s), then the DaemonSet controller will create Pods on nodes which match that node selector(s):
