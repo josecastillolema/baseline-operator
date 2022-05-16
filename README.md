@@ -90,7 +90,7 @@ spec:
 ```
 
 ```
-$ oc kubectl daemonset
+$ kubectl get daemonset
 NAME              DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
 baseline-sample   1         1         1       1            1           stress=true     1m
 ```
