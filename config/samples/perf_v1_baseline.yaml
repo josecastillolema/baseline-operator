@@ -6,3 +6,12 @@ spec:
   cpu: 1			            # cores
   memory: 1G              # size of the virtual memory
   custom: "--timer 1"     # other custom params
+  # nodeSelector:
+  #   stress: "true"
+  # tolerations:
+  # - key: node-role.kubernetes.io/control-plane
+  #   operator: Exists
+  #   effect: NoSchedule
+  # - key: node-role.kubernetes.io/master
+  #   operator: Exists
+  #   effect: NoSchedule

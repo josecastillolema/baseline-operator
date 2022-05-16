@@ -173,6 +173,8 @@ func (r *BaselineReconciler) daemonsetForBaseline(b *perfv1.Baseline) *appsv1.Da
 					Labels: ls,
 				},
 				Spec: corev1.PodSpec{
+					NodeSelector: b.Spec.NodeSelector,
+					Tolerations:  b.Spec.Tolerations,
 					Containers: []corev1.Container{{
 						Image:   "quay.io/cloud-bulldozer/stressng:latest",
 						Name:    "stressng",

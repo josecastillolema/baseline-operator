@@ -17,6 +17,7 @@ limitations under the License.
 package v1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -35,6 +36,10 @@ type BaselineSpec struct {
 	//+kubebuilder:validation:Optional
 	// Custom is a custom string to pass to stress-ng
 	Custom string `json:"custom"`
+	//+kubebuilder:validation:Optional
+	NodeSelector map[string]string `json:"nodeSelector"`
+	//+kubebuilder:validation:Optional
+	Tolerations []corev1.Toleration `json:"tolerations"`
 }
 
 // BaselineStatus defines the observed state of Baseline
