@@ -29,7 +29,7 @@ baseline-sample   1m
 
 Check for the daemonset:
 ```
-$ oc kubectl daemonset
+$ kubectl get daemonset
 NAME              DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
 baseline-sample   1         1         1       1            1           <none>          1m
 ```
@@ -64,6 +64,45 @@ baseline-sample-xvxc9   0/1     ContainerCreating   0          1s
 $ kubectl logs baseline-sample-xvxc9
 stress-ng: info:  [1] setting to a 0 second run per stressor
 stress-ng: info:  [1] dispatching hogs: 2 cpu, 1 vm, 1 timer
+```
+
+## Node placement
+
+If you specify `nodeSelector`(s), then the DaemonSet controller will create Pods on nodes which match that node selector(s):
+```yaml
+apiVersion: perf.baseline.io/v1
+kind: Baseline
+metadata:
+  name: baseline-sample
+spec:
+  cpu: 1
+  nodeSelector:
+    stress: "true"
+```
+
+```
+$ oc kubectl daemonset
+NAME              DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+baseline-sample   1         1         1       1            1           stress=true     1m
+```
+
+By default, DaemonSet pods only run in worker nodes. If you want to run stress-ng in control plane nodes you can use tolerations:
+```yaml
+apiVersion: perf.baseline.io/v1
+kind: Baseline
+metadata:
+  name: baseline-sample
+spec:
+  cpu: 1			            
+  tolerations:
+  # these tolerations are to have the daemonset runnable on control plane nodes
+  # remove them if your control plane nodes should not run pods
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
+  - key: node-role.kubernetes.io/master
+    operator: Exists
+    effect: NoSchedule
 ```
 
 ## Installation
