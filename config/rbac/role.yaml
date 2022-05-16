@@ -43,3 +43,10 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - perf.baseline.io
+  resources:
+  - events
+  verbs:
+  - create
+  - patch

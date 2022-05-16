@@ -17,6 +17,7 @@ limitations under the License.
 package controllers
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -25,6 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/record"
 
 	"context"
 
@@ -39,13 +41,15 @@ import (
 // BaselineReconciler reconciles a Baseline object
 type BaselineReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	recorder record.EventRecorder
 }
 
 //+kubebuilder:rbac:groups=perf.baseline.io,resources=baselines,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=perf.baseline.io,resources=baselines/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=perf.baseline.io,resources=baselines/finalizers,verbs=update
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=perf.baseline.io,resources=events,verbs=create;patch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -81,6 +85,7 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			return ctrl.Result{}, err
 		}
 		// Daemonset created successfully - update status, return and requeue
+		r.recorder.Event(baseline, "Normal", "Created", fmt.Sprintf("Created daemonset %s/%s", ds.Namespace, ds.Name))
 		baseline.Status.Command = strings.Join(ds.Spec.Template.Spec.Containers[0].Command, " ")
 		err := r.Status().Update(ctx, baseline)
 		if err != nil {
@@ -115,6 +120,7 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			return ctrl.Result{}, err
 		}
 		// Daemonset recreated successfully - update status, return and requeue
+		r.recorder.Event(baseline, "Normal", "Recreated", fmt.Sprintf("Rereated daemonset %s/%s", ds.Namespace, ds.Name))
 		baseline.Status.Command = strings.Join(ds.Spec.Template.Spec.Containers[0].Command, " ")
 		err := r.Status().Update(ctx, baseline)
 		if err != nil {
@@ -197,6 +203,9 @@ func labelsForBaseline(name string) map[string]string {
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *BaselineReconciler) SetupWithManager(mgr ctrl.Manager) error {
+
+	r.recorder = mgr.GetEventRecorderFor("Baseline")
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&perfv1.Baseline{}).
 		Owns(&appsv1.DaemonSet{}).
