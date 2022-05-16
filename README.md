@@ -75,7 +75,7 @@ stress-ng: info:  [1] setting to a 0 second run per stressor
 stress-ng: info:  [1] dispatching hogs: 2 cpu, 1 vm, 1 timer
 ```
 
-Check for the CRDs events:
+Check for the CRD events:
 ```
 $ kubectl describe baseline baseline-sample
 ...
