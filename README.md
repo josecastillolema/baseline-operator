@@ -77,7 +77,7 @@ stress-ng: info:  [1] dispatching hogs: 2 cpu, 1 vm, 1 timer
 
 ## Node placement
 
-If you specify `nodeSelector`(s), then the DaemonSet controller will create Pods on nodes which match that node selector(s):
+If you specify node selector(s), then the DaemonSet controller will create Pods on nodes which match that node selector(s):
 ```yaml
 apiVersion: perf.baseline.io/v1
 kind: Baseline
