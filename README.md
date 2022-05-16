@@ -36,14 +36,14 @@ NAME              AGE
 baseline-sample   1m
 ```
 
-Check for the daemonset:
+Check for the DaemonSet:
 ```
 $ kubectl get daemonset
 NAME              DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
 baseline-sample   1         1         1       1            1           <none>          1m
 ```
 
-Check for the pods:
+Check for the Pods:
 ```
 $ kubectl get pods
 NAME                    READY   STATUS    RESTARTS   AGE
@@ -95,7 +95,7 @@ NAME              DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELE
 baseline-sample   1         1         1       1            1           stress=true     1m
 ```
 
-By default, DaemonSet pods only run in worker nodes. If you want to run stress-ng in control plane nodes you can use tolerations:
+By default, DaemonSet Pods only run in worker nodes. If you want to run stress-ng loads in control plane nodes you can use tolerations:
 ```yaml
 apiVersion: perf.baseline.io/v1
 kind: Baseline
