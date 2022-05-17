@@ -86,7 +86,7 @@ Events:
   Normal  Recreated  4s     Baseline  Rereated daemonset default/baseline-sample
 ```
 
-Other fields of the CRD can be updated without the need of a DaemonSet recreation, like i.e.: `nodeSelector` and `tolerations`:
+Other fields of the CRD can be updated without the need of a DaemonSet recreation, like i.e.: `image`, `hostNetwork`, `nodeSelector` and `tolerations`:
 
 ```
 $ kubectl patch baseline baseline-sample --type merge -p '{"spec":{"nodeSelector":{"stress":"true"}}}'
