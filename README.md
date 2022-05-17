@@ -14,7 +14,7 @@ metadata:
   name: baseline-sample
 spec:
   cpu: 1                                             # cores
-  mem: 1G                                            # size of the virtual memory
+  mem: 1G                                            # size of the virtual memory. can be defined as a % of the available memory
   io: 1                                              # workers continuously calling sync to commit buffer cache to disk
   sock: 1                                            # workers exercising socket I/O networking
   custom: "--timer 1"                                # other custom params
