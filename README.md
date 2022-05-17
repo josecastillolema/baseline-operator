@@ -126,7 +126,7 @@ NAME              DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELE
 baseline-sample   1         1         1       1            1           stress=true     1m
 ```
 
-By default, DaemonSet Pods only run in worker nodes. If you want to run stress-ng loads in control plane nodes you can use tolerations:
+By default, DaemonSet Pods only run in worker nodes. If you want to run *stress-ng* loads in control plane nodes you can use tolerations:
 ```yaml
 apiVersion: perf.baseline.io/v1
 kind: Baseline
@@ -147,7 +147,7 @@ spec:
 
 ### Custom image
 
-It is possible to select a custom image for stress-ng using the `image` property:
+It is possible to select a custom image for *stress-ng* using the `image` property:
 ```yaml
 apiVersion: perf.baseline.io/v1
 kind: Baseline
@@ -158,7 +158,7 @@ spec:
   image: quay.io/cloud-bulldozer/stressng
 ```
 
-If not selected, defaults to `quay.io/jcastillolema/stressng:0.14.01`. For network workloads is important for stress-ng version to be >= 0.14.01. Image was compiled through this Dockerfile:
+If not selected, defaults to `quay.io/jcastillolema/stressng:0.14.01`. For network workloads is important for *stress-ng* version to be >= 0.14.01, which allows to choose the network interface via `--sock-if`, `sockmany-if`, `--udp-if` and `udp-flood-if`. The default image was compiled through this Dockerfile:
 ```Dockerfile
 FROM quay.io/centos/centos:stream8
 
