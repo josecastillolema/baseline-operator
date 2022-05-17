@@ -160,7 +160,7 @@ spec:
   image: quay.io/cloud-bulldozer/stressng
 ```
 
-If not selected, defaults to `quay.io/jcastillolema/stressng:0.14.01`. For network workloads is important for *stress-ng* version to be >= 0.14.01, which allows to choose the network interface via `--sock-if`, `sockmany-if`, `--udp-if` and `udp-flood-if`. The default image was compiled through this Dockerfile:
+If not defined, defaults to `quay.io/jcastillolema/stressng:0.14.01`. For network workloads is important for *stress-ng* version to be >= 0.14.01, which allows to choose the network interface via `--sock-if`, `sockmany-if`, `--udp-if` and `udp-flood-if`. The default image was compiled through this Dockerfile:
 ```Dockerfile
 FROM quay.io/centos/centos:stream8
 
