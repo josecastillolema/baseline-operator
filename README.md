@@ -1,8 +1,7 @@
 ![GitHub](https://img.shields.io/github/license/josecastillolema/baseline-operator)
 ![GitHub language count](https://img.shields.io/github/languages/count/josecastillolema/baseline-operator)
 ![GitHub top language](https://img.shields.io/github/languages/top/josecastillolema/baseline-operator)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/josecastillolema/baseline-operator/CI)
-![CI](https://github.com/josecastillolema/baseline-operator/workflows/CI/badge.svg)
+[![Docker Image CI](https://github.com/josecastillolema/baseline-operator/actions/workflows/docker-image.yml/badge.svg)](https://github.com/josecastillolema/baseline-operator/actions/workflows/docker-image.yml)
 
 # baseline-operator
 
