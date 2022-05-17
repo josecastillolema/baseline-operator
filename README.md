@@ -60,6 +60,9 @@ $ kubectl get -o template baseline/baseline-sample --template={{.status.command}
 stress-ng --timeout 0 --cpu 1 --vm 1 --vm-bytes 1G --timer 1
 ```
 
+
+## Updating the CRD
+
 Update or delete parameters from the CRD:
 ```
 $ kubectl patch baseline baseline-sample --type merge -p '{"spec":{"cpu":2}}'
@@ -75,6 +78,8 @@ stress-ng: info:  [1] setting to a 0 second run per stressor
 stress-ng: info:  [1] dispatching hogs: 2 cpu, 1 vm, 1 timer
 ```
 
+Some updates (like the above) that get translated into a new command cause the DaemonSet to be recreated.
+
 Check for the CRD events:
 ```
 $ kubectl describe baseline baseline-sample
@@ -86,7 +91,27 @@ Events:
   Normal  Recreated  4s     Baseline  Rereated daemonset default/baseline-sample
 ```
 
-## Node placement
+Other fields of the CRD can be updated without the need of a DaemonSet recreation, like i.e.: `nodeSelector` and `tolerations`:
+
+```
+$ kubectl patch baseline baseline-sample --type merge -p '{"spec":{"nodeSelector":{"stress":"true"}}}'
+baseline.perf.baseline.io/baseline-sample patched
+
+$ kubects get daemonset
+NAME              DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+baseline-sample   0         0         0       0            0           stress=true     3m9s
+
+$ kubectl describe baseline baseline-sample
+...
+Events:
+  Type    Reason     Age    From      Message
+  ----    ------     ----   ----      -------
+  Normal  Created    6m20s  Baseline  Created daemonset default/baseline-sample
+  Normal  Recreated  1m10s  Baseline  Rereated daemonset default/baseline-sample
+  Normal  Updated    7s     Baseline  Updated daemonset default/baseline-sample
+```
+
+### Node placement
 
 If you specify node selector(s), then the DaemonSet controller will create Pods on nodes which match that node selector(s):
 ```yaml
