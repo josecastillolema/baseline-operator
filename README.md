@@ -60,7 +60,7 @@ stress-ng: info:  [1] dispatching hogs: 1 cpu, 1 vm, 1 io, 1 sock, 1 timer
 
 ### Updating the CRD
 
-Update or delete parameters from the CRD:
+Update or remove parameters from the CRD:
 ```
 $ kubectl patch baseline baseline-sample --type merge -p '{"spec":{"cpu":2}}'
 baseline.perf.baseline.io/baseline-sample patched
