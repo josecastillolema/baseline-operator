@@ -14,10 +14,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Login in DockerHub
+    - name: Login in Quay
       run: docker login quay.io -u ${QUAY_USER} -p ${QUAY_TOKEN}
       env:
-        QUAYHUB_USER: ${{ secrets.QUAYHUB_USER }}
-        QUAYHUB_TOKEN: ${{ secrets.QUAYHUB_TOKEN }}
+        QUAY_USER: ${{ secrets.QUAY_USER }}
+        QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
     - name: Build and push the Docker image
       run: make docker-build docker-push
