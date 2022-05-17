@@ -13,9 +13,10 @@ kind: Baseline
 metadata:
   name: baseline-sample
 spec:
-  cpu: 1                  # cores
-  memory: 1G              # size of the virtual memory
-  custom: "--timer 1"     # other custom params
+  cpu: 1			                                # cores
+  memory: 1G                                  # size of the virtual memory
+  custom: "--timer 1"                         # other custom params
+  # image: quay.io/cloud-bulldozer/stressng   # custom image
   # nodeSelector:
   #   stress: "true"
   # tolerations:
@@ -60,8 +61,7 @@ $ kubectl get -o template baseline/baseline-sample --template={{.status.command}
 stress-ng --timeout 0 --cpu 1 --vm 1 --vm-bytes 1G --timer 1
 ```
 
-
-## Updating the CRD
+### Updating the CRD
 
 Update or delete parameters from the CRD:
 ```
@@ -148,6 +148,29 @@ spec:
   - key: node-role.kubernetes.io/master
     operator: Exists
     effect: NoSchedule
+```
+
+### Custom image
+
+It is possible to select a custom image for stress-ng using the `image` property:
+```yaml
+apiVersion: perf.baseline.io/v1
+kind: Baseline
+metadata:
+  name: baseline-sample
+spec:
+  cpu: 1
+  image: quay.io/cloud-bulldozer/stressng
+```
+
+If not selected, defaults to `quay.io/jcastillolema/stressng:0.14.01`. For network workloads is important for stress-ng version to be >= 0.14.01. Image was compiled through this Dockerfile:
+```Dockerfile
+FROM quay.io/centos/centos:stream8
+
+WORKDIR /root
+RUN yum install -y libaio-devel libattr-devel libcap-devel libgcrypt-devel libjpeg-devel keyutils-libs-devel lksctp-tools-devel libatomic zlib-devel cmake gcc
+RUN curl -L https://github.com/ColinIanKing/stress-ng/archive/refs/tags/V0.14.01.tar.gz -o V0.14.01.tar.gz && tar -xzvf V0.14.01.tar.gz -C /root --strip-components=1
+RUN make clean && make && mv stress-ng /usr/local/bin
 ```
 
 ## Installation
