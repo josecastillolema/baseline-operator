@@ -33,8 +33,8 @@ $ kubectl apply -f config/samples/perf_v1_baseline.yaml
 baseline.perf.baseline.io/baseline-sample configured
 
 $ kubectl get baseline
-NAME              AGE
-baseline-sample   1m
+NAME              COMMAND                                                        AGE
+baseline-sample   stress-ng --timeout 0 --cpu 1 --vm 1 --vm-bytes 1G --timer 1   2s
 ```
 
 Check for the DaemonSet:
