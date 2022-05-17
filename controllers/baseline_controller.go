@@ -103,12 +103,15 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	nodeSelector := baseline.Spec.NodeSelector
 	tolerations := baseline.Spec.Tolerations
 	image := baseline.Spec.Image
+	hostNetwork := baseline.Spec.HostNetwork
 	if !reflect.DeepEqual(found.Spec.Template.Spec.NodeSelector, nodeSelector) ||
 		!reflect.DeepEqual(found.Spec.Template.Spec.Tolerations, tolerations) ||
-		found.Spec.Template.Spec.Containers[0].Image != image {
+		found.Spec.Template.Spec.Containers[0].Image != image ||
+		found.Spec.Template.Spec.HostNetwork != hostNetwork {
 		found.Spec.Template.Spec.NodeSelector = nodeSelector
 		found.Spec.Template.Spec.Tolerations = tolerations
 		found.Spec.Template.Spec.Containers[0].Image = image
+		found.Spec.Template.Spec.HostNetwork = hostNetwork
 		log.Info("Updating the DaemonSet with the new spec", "DaemonSet.Namespace", found.Namespace, "DaemonSet.Name", found.Name)
 		err = r.Update(ctx, found)
 		if err != nil {
@@ -199,6 +202,7 @@ func (r *BaselineReconciler) daemonsetForBaseline(b *perfv1.Baseline) *appsv1.Da
 					Labels: ls,
 				},
 				Spec: corev1.PodSpec{
+					HostNetwork:  b.Spec.HostNetwork,
 					NodeSelector: b.Spec.NodeSelector,
 					Tolerations:  b.Spec.Tolerations,
 					Containers: []corev1.Container{{

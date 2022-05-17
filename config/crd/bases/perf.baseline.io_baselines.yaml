@@ -15,7 +15,14 @@ spec:
     singular: baseline
   scope: Namespaced
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - jsonPath: .status.command
+      name: Command
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
     schema:
       openAPIV3Schema:
         description: Baseline is the Schema for the baselines API
@@ -43,6 +50,8 @@ spec:
               custom:
                 description: Custom is a custom string to pass to stress-ng
                 type: string
+              hostNetwork:
+                type: boolean
               image:
                 default: quay.io/jcastillolema/stressng:0.14.01
                 type: string

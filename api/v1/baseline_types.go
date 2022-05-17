@@ -40,6 +40,8 @@ type BaselineSpec struct {
 	//+kubebuilder:default:="quay.io/jcastillolema/stressng:0.14.01"
 	Image string `json:"image"`
 	//+kubebuilder:validation:Optional
+	HostNetwork bool `json:"hostNetwork"`
+	//+kubebuilder:validation:Optional
 	NodeSelector map[string]string `json:"nodeSelector"`
 	//+kubebuilder:validation:Optional
 	Tolerations []corev1.Toleration `json:"tolerations"`
@@ -52,6 +54,8 @@ type BaselineStatus struct {
 
 //+kubebuilder:object:root=true
 
+//+kubebuilder:printcolumn:name="Command",type=string,JSONPath=`.status.command`
+//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:subresource:status
 // Baseline is the Schema for the baselines API
 type Baseline struct {
