@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -98,6 +99,21 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{}, err
 	}
 
+	// Ensure the nodeSelector and tolerations are the same as the spec
+	nodeSelector := baseline.Spec.NodeSelector
+	tolerations := baseline.Spec.Tolerations
+	if !reflect.DeepEqual(found.Spec.Template.Spec.NodeSelector, nodeSelector) || !reflect.DeepEqual(found.Spec.Template.Spec.Tolerations, tolerations) {
+		found.Spec.Template.Spec.NodeSelector = nodeSelector
+		found.Spec.Template.Spec.Tolerations = tolerations
+		log.Info("Updating the DaemonSet with the new spec", "DaemonSet.Namespace", found.Namespace, "DaemonSet.Name", found.Name)
+		err = r.Update(ctx, found)
+		if err != nil {
+			log.Error(err, "Failed to update DaemonSet", "DaemonSet.Namespace", found.Namespace, "DaemonSet.Name", found.Name)
+			return ctrl.Result{}, err
+		}
+		r.recorder.Event(baseline, "Normal", "Updated", fmt.Sprintf("Updated daemonset %s/%s", found.Namespace, found.Name))
+	}
+
 	// Ensure the stressng parameters are the same as in the spec
 	cpu := baseline.Spec.Cpu
 	mem := baseline.Spec.Memory
@@ -108,7 +124,7 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	if updateCpu || notMem || !strings.Contains(strings.Join(command, " "), custom) {
 		// Define a new daemonset
 		ds := r.daemonsetForBaseline(baseline)
-		log.Info("Recreating the DaemonSet with the new CRD param", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
+		log.Info("Recreating the DaemonSet with the new command", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
 		err = r.Delete(ctx, ds)
 		if err != nil {
 			log.Error(err, "Failed to delete previous DaemonSet", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
