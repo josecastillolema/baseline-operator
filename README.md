@@ -1,3 +1,9 @@
+![GitHub](https://img.shields.io/github/license/josecastillolema/baseline-operator)
+![GitHub language count](https://img.shields.io/github/languages/count/josecastillolema/baseline-operator)
+![GitHub top language](https://img.shields.io/github/languages/top/josecastillolema/baseline-operator)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/josecastillolema/baseline-operator/CI)
+![CI](https://github.com/josecastillolema/baseline-operator/workflows/CI/badge.svg)
+
 # baseline-operator
 
 The baseline-operator provides a way to run [stress-ng](https://wiki.ubuntu.com/Kernel/Reference/stress-ng) workloads on Kubernetes in various deployment configurations.
