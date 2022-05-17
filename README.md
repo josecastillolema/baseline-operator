@@ -13,8 +13,10 @@ kind: Baseline
 metadata:
   name: baseline-sample
 spec:
-  cpu: 1                                             # cores
-  memory: 1G                                         # size of the virtual memory
+  cpu: 1			                                       # cores
+  mem: 1G                                            # size of the virtual memory
+  io: 1                                              # workers continuously calling sync to commit buffer cache to disk
+  sock: 1                                            # workers exercising socket I/O networking
   custom: "--timer 1"                                # other custom params
   # image: quay.io/cloud-bulldozer/stressng          # custom image
   # hostNetwork: true                                # directly use host network
@@ -34,8 +36,8 @@ $ kubectl apply -f config/samples/perf_v1_baseline.yaml
 baseline.perf.baseline.io/baseline-sample configured
 
 $ kubectl get baseline
-NAME              COMMAND                                                        AGE
-baseline-sample   stress-ng --timeout 0 --cpu 1 --vm 1 --vm-bytes 1G --timer 1   2s
+NAME              COMMAND                                                                                AGE
+baseline-sample   stress-ng -t 0 --cpu 1 --vm 1 --vm-bytes 1G --io 1 --sock 1 --sock-if eth0 --timer 1   3s
 ```
 
 Check for the DaemonSet:
@@ -53,7 +55,7 @@ baseline-sample-nnq5b   1/1     Running   0          1m
 
 $ kubectl logs baseline-sample-nnq5b 
 stress-ng: info:  [1] setting to a 0 second run per stressor
-stress-ng: info:  [1] dispatching hogs: 1 cpu, 1 vm, 1 timer
+stress-ng: info:  [1] dispatching hogs: 1 cpu, 1 vm, 1 io, 1 sock, 1 timer
 ```
 
 ### Updating the CRD
@@ -70,7 +72,7 @@ baseline-sample-xvxc9   0/1     ContainerCreating   0          1s
 
 $ kubectl logs baseline-sample-xvxc9
 stress-ng: info:  [1] setting to a 0 second run per stressor
-stress-ng: info:  [1] dispatching hogs: 2 cpu, 1 vm, 1 timer
+stress-ng: info:  [1] dispatching hogs: 2 cpu, 1 vm, 1 io, 1 sock, 1 timer
 ```
 
 Some updates (like the above) that get translated into a new command cause the DaemonSet to be recreated.
