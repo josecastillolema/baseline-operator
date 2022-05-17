@@ -55,12 +55,6 @@ stress-ng: info:  [1] setting to a 0 second run per stressor
 stress-ng: info:  [1] dispatching hogs: 1 cpu, 1 vm, 1 timer
 ```
 
-The resulting `stress-ng` command is stored in the status of the CRD:
-```
-$ kubectl get -o template baseline/baseline-sample --template={{.status.command}}
-stress-ng --timeout 0 --cpu 1 --vm 1 --vm-bytes 1G --timer 1
-```
-
 ### Updating the CRD
 
 Update or delete parameters from the CRD:
