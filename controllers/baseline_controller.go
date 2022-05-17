@@ -102,9 +102,13 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	// Ensure the nodeSelector and tolerations are the same as the spec
 	nodeSelector := baseline.Spec.NodeSelector
 	tolerations := baseline.Spec.Tolerations
-	if !reflect.DeepEqual(found.Spec.Template.Spec.NodeSelector, nodeSelector) || !reflect.DeepEqual(found.Spec.Template.Spec.Tolerations, tolerations) {
+	image := baseline.Spec.Image
+	if !reflect.DeepEqual(found.Spec.Template.Spec.NodeSelector, nodeSelector) ||
+		!reflect.DeepEqual(found.Spec.Template.Spec.Tolerations, tolerations) ||
+		found.Spec.Template.Spec.Containers[0].Image != image {
 		found.Spec.Template.Spec.NodeSelector = nodeSelector
 		found.Spec.Template.Spec.Tolerations = tolerations
+		found.Spec.Template.Spec.Containers[0].Image = image
 		log.Info("Updating the DaemonSet with the new spec", "DaemonSet.Namespace", found.Namespace, "DaemonSet.Name", found.Name)
 		err = r.Update(ctx, found)
 		if err != nil {
@@ -198,7 +202,7 @@ func (r *BaselineReconciler) daemonsetForBaseline(b *perfv1.Baseline) *appsv1.Da
 					NodeSelector: b.Spec.NodeSelector,
 					Tolerations:  b.Spec.Tolerations,
 					Containers: []corev1.Container{{
-						Image:   "quay.io/cloud-bulldozer/stressng:latest",
+						Image:   b.Spec.Image,
 						Name:    "stressng",
 						Command: command,
 					}},

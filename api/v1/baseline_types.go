@@ -37,6 +37,9 @@ type BaselineSpec struct {
 	// Custom is a custom string to pass to stress-ng
 	Custom string `json:"custom"`
 	//+kubebuilder:validation:Optional
+	//+kubebuilder:default:="quay.io/jcastillolema/stressng:0.14.01"
+	Image string `json:"image"`
+	//+kubebuilder:validation:Optional
 	NodeSelector map[string]string `json:"nodeSelector"`
 	//+kubebuilder:validation:Optional
 	Tolerations []corev1.Toleration `json:"tolerations"`

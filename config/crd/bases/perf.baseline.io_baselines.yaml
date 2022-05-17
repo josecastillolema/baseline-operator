@@ -43,6 +43,9 @@ spec:
               custom:
                 description: Custom is a custom string to pass to stress-ng
                 type: string
+              image:
+                default: quay.io/jcastillolema/stressng:0.14.01
+                type: string
               memory:
                 description: Memory is the ammount of memory
                 type: string
