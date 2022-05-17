@@ -13,14 +13,14 @@ kind: Baseline
 metadata:
   name: baseline-sample
 spec:
-  cpu: 1                                      # cores
-  memory: 1G                                  # size of the virtual memory
-  custom: "--timer 1"                         # other custom params
-  # image: quay.io/cloud-bulldozer/stressng   # custom image
-  # hostNetwork: true
-  # nodeSelector:
+  cpu: 1			                                       # cores
+  memory: 1G                                         # size of the virtual memory
+  custom: "--timer 1"                                # other custom params
+  # image: quay.io/cloud-bulldozer/stressng          # custom image
+  # hostNetwork: true                                # directly use host network
+  # nodeSelector:                                    # filter nodes with labels
   #   stress: "true"
-  # tolerations:
+  # tolerations:                                     # use the control plane nodes
   # - key: node-role.kubernetes.io/control-plane
   #   operator: Exists
   #   effect: NoSchedule
