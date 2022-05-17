@@ -13,7 +13,7 @@ kind: Baseline
 metadata:
   name: baseline-sample
 spec:
-  cpu: 1			                                # cores
+  cpu: 1			                    # cores
   memory: 1G                                  # size of the virtual memory
   custom: "--timer 1"                         # other custom params
   # image: quay.io/cloud-bulldozer/stressng   # custom image
