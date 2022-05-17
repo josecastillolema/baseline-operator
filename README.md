@@ -17,6 +17,7 @@ spec:
   memory: 1G                                  # size of the virtual memory
   custom: "--timer 1"                         # other custom params
   # image: quay.io/cloud-bulldozer/stressng   # custom image
+  # hostNetwork: true
   # nodeSelector:
   #   stress: "true"
   # tolerations:
