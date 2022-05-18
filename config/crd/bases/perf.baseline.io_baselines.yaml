@@ -55,13 +55,23 @@ spec:
               image:
                 default: quay.io/jcastillolema/stressng:0.14.01
                 type: string
-              memory:
+              io:
+                description: Cpu is the the number of cores
+                format: int32
+                minimum: 1
+                type: integer
+              mem:
                 description: Memory is the ammount of memory
                 type: string
               nodeSelector:
                 additionalProperties:
                   type: string
                 type: object
+              sock:
+                description: Sock is the number of workers exercising socket I/O networking
+                format: int32
+                minimum: 1
+                type: integer
               tolerations:
                 items:
                   description: The pod this Toleration is attached to tolerates any

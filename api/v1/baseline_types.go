@@ -32,7 +32,15 @@ type BaselineSpec struct {
 	Cpu int32 `json:"cpu"`
 	//+kubebuilder:validation:Optional
 	// Memory is the ammount of memory
-	Memory string `json:"memory"`
+	Memory string `json:"mem"`
+	//+kubebuilder:validation:Optional
+	//+kubebuilder:validation:Minimum=1
+	// Cpu is the the number of cores
+	Io int32 `json:"io"`
+	//+kubebuilder:validation:Optional
+	//+kubebuilder:validation:Minimum=1
+	// Sock is the number of workers exercising socket I/O networking
+	Sock int32 `json:"sock"`
 	//+kubebuilder:validation:Optional
 	// Custom is a custom string to pass to stress-ng
 	Custom string `json:"custom"`

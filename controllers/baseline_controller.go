@@ -122,13 +122,17 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	}
 
 	// Ensure the stressng parameters are the same as in the spec
+	command := *&found.Spec.Template.Spec.Containers[0].Command
 	cpu := baseline.Spec.Cpu
 	mem := baseline.Spec.Memory
+	io := baseline.Spec.Io
+	sock := baseline.Spec.Sock
 	custom := baseline.Spec.Custom
-	command := *&found.Spec.Template.Spec.Containers[0].Command
-	updateCpu := ((cpu != 0) && !present(command, "--cpu", strconv.Itoa(int(cpu)), 1)) || ((cpu == 0) && strings.Contains(strings.Join(command, " "), "--cpu"))
-	notMem := ((mem != "") && !present(command, "--vm", mem, 3)) || ((mem == "") && strings.Contains(strings.Join(command, " "), "--vm"))
-	if updateCpu || notMem || !strings.Contains(strings.Join(command, " "), custom) {
+	updateCpu := needForUpdateInt(command, cpu, "--cpu")
+	updateSock := needForUpdateInt(command, sock, "--sock")
+	updateIo := needForUpdateInt(command, io, "--io")
+	updateMem := needForUpdateString(command, mem, "--vm")
+	if updateCpu || updateMem || updateIo || updateSock || !strings.Contains(strings.Join(command, " "), custom) {
 		// Define a new daemonset
 		ds := r.daemonsetForBaseline(baseline)
 		log.Info("Recreating the DaemonSet with the new command", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
@@ -156,7 +160,19 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	return ctrl.Result{}, nil
 }
 
-// present returns if the item has the corresponding value
+// needForUpdateInt returns if the parameter of type int32 has to be updated
+func needForUpdateInt(commands []string, value int32, param string) bool {
+	return ((value != 0) && !present(commands, param, strconv.Itoa(int(value)), 1)) ||
+		((value == 0) && strings.Contains(strings.Join(commands, " "), param))
+}
+
+// needForUpdateString returns if the parameter of type int32 has to be updated
+func needForUpdateString(commands []string, value string, param string) bool {
+	return ((value != "") && !present(commands, param, value, 3)) ||
+		((value == "") && strings.Contains(strings.Join(commands, " "), param))
+}
+
+// present returns if the command string has the corresponding item value in the position shift
 func present(commands []string, item string, value string, shift int) bool {
 	if shift > len(commands) {
 		return false
@@ -176,13 +192,21 @@ func (r *BaselineReconciler) daemonsetForBaseline(b *perfv1.Baseline) *appsv1.Da
 	ls := labelsForBaseline(b.Name)
 	cpu := strconv.Itoa(int(b.Spec.Cpu))
 	mem := b.Spec.Memory
+	io := strconv.Itoa(int(b.Spec.Io))
+	sock := strconv.Itoa(int(b.Spec.Sock))
 	custom := b.Spec.Custom
-	command := []string{"stress-ng", "--timeout", "0"}
+	command := []string{"stress-ng", "-t", "0"}
 	if cpu != "0" {
 		command = append(command, "--cpu", cpu)
 	}
 	if mem != "" {
 		command = append(command, "--vm", "1", "--vm-bytes", mem)
+	}
+	if io != "0" {
+		command = append(command, "--io", io)
+	}
+	if sock != "0" {
+		command = append(command, "--sock", sock, "--sock-if", "eth0")
 	}
 	if custom != "" {
 		command = append(command, strings.Split(custom, " ")...)
