@@ -18,16 +18,16 @@ kind: Baseline
 metadata:
   name: baseline-sample
 spec:
-  cpu: 1                                             # cores
-  mem: 1G                                            # size of the virtual memory. can be defined as a % of the available memory
-  io: 1                                              # workers continuously calling sync to commit buffer cache to disk
-  sock: 1                                            # workers exercising socket I/O networking
-  custom: "--timer 1"                                # other custom params
-  # image: quay.io/cloud-bulldozer/stressng          # custom image
-  # hostNetwork: true                                # directly use host network
-  # nodeSelector:                                    # filter nodes with labels
+  cpu: 1                                             # Cores
+  mem: 1G                                            # Size of the virtual memory. Can be defined as a % of the available memory
+  io: 1                                              # Workers continuously calling sync to commit buffer cache to disk
+  sock: 1                                            # Workers exercising socket I/O networking
+  custom: "--timer 1"                                # Other custom params
+  # image: quay.io/cloud-bulldozer/stressng          # Custom image
+  # hostNetwork: true                                # Directly use host network
+  # nodeSelector:                                    # Filter nodes with labels
   #   stress: "true"
-  # tolerations:                                     # use the control plane nodes
+  # tolerations:                                     # Use the control plane nodes
   # - key: node-role.kubernetes.io/control-plane
   #   operator: Exists
   #   effect: NoSchedule
