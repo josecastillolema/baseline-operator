@@ -58,6 +58,7 @@ type BaselineSpec struct {
 // BaselineStatus defines the observed state of Baseline
 type BaselineStatus struct {
 	Command string `json:"command"`
+	Custom  string `json:"custom"`
 }
 
 //+kubebuilder:object:root=true

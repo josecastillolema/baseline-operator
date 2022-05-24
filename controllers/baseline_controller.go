@@ -78,7 +78,7 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	err = r.Get(ctx, types.NamespacedName{Name: baseline.Name, Namespace: baseline.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new daemonset
-		ds := r.daemonsetForBaseline(baseline)
+		ds, custom := r.daemonsetForBaseline(baseline)
 		log.Info("Creating a new DaemonSet", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
 		err = r.Create(ctx, ds)
 		if err != nil {
@@ -88,6 +88,8 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		// Daemonset created successfully - update status, return and requeue
 		r.recorder.Event(baseline, "Normal", "Created", fmt.Sprintf("Created daemonset %s/%s", ds.Namespace, ds.Name))
 		baseline.Status.Command = strings.Join(ds.Spec.Template.Spec.Containers[0].Command, " ")
+		baseline.Status.Custom = custom
+
 		err := r.Status().Update(ctx, baseline)
 		if err != nil {
 			log.Error(err, "Failed to update Baseline status")
@@ -132,9 +134,9 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	updateSock := needForUpdateInt(command, sock, "--sock")
 	updateIo := needForUpdateInt(command, io, "--io")
 	updateMem := needForUpdateString(command, mem, "--vm")
-	if updateCpu || updateMem || updateIo || updateSock || !strings.Contains(strings.Join(command, " "), custom) {
+	if updateCpu || updateMem || updateIo || updateSock || !strings.Contains(strings.Join(command, " "), custom) || custom != baseline.Status.Custom {
 		// Define a new daemonset
-		ds := r.daemonsetForBaseline(baseline)
+		ds, custom := r.daemonsetForBaseline(baseline)
 		log.Info("Recreating the DaemonSet with the new command", "DaemonSet.Namespace", ds.Namespace, "DaemonSet.Name", ds.Name)
 		err = r.Delete(ctx, ds)
 		if err != nil {
@@ -149,6 +151,7 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		// Daemonset recreated successfully - update status, return and requeue
 		r.recorder.Event(baseline, "Normal", "Recreated", fmt.Sprintf("Rereated daemonset %s/%s", ds.Namespace, ds.Name))
 		baseline.Status.Command = strings.Join(ds.Spec.Template.Spec.Containers[0].Command, " ")
+		baseline.Status.Custom = custom
 		err := r.Status().Update(ctx, baseline)
 		if err != nil {
 			log.Error(err, "Failed to update Baseline status")
@@ -188,7 +191,7 @@ func present(commands []string, item string, value string, shift int) bool {
 }
 
 // daemonsetForBaseline returns a baseline DaemonSet object
-func (r *BaselineReconciler) daemonsetForBaseline(b *perfv1.Baseline) *appsv1.DaemonSet {
+func (r *BaselineReconciler) daemonsetForBaseline(b *perfv1.Baseline) (*appsv1.DaemonSet, string) {
 	ls := labelsForBaseline(b.Name)
 	cpu := strconv.Itoa(int(b.Spec.Cpu))
 	mem := b.Spec.Memory
@@ -240,7 +243,7 @@ func (r *BaselineReconciler) daemonsetForBaseline(b *perfv1.Baseline) *appsv1.Da
 	}
 	// Set Baseline instance as the owner and controller
 	ctrl.SetControllerReference(b, ds, r.Scheme)
-	return ds
+	return ds, custom
 }
 
 // labelsForBaseline returns the labels for selecting the resources

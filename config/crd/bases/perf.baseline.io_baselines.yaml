@@ -19,6 +19,9 @@ spec:
     - jsonPath: .status.command
       name: Command
       type: string
+    - jsonPath: .status.custom
+      name: Custom
+      type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
@@ -117,8 +120,11 @@ spec:
             properties:
               command:
                 type: string
+              custom:
+                type: string
             required:
             - command
+            - custom
             type: object
         type: object
     served: true
