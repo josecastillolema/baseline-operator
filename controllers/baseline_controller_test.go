@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	// "sigs.k8s.io/controller-runtime/pkg/envtest/komega"
 
 	perfv1 "github.com/josecastillolema/baseline-operator/api/v1"
 )
@@ -39,9 +40,10 @@ var _ = Describe("Baseline controller", func() {
 					Namespace: BaselineNamespace,
 				},
 				Spec: perfv1.BaselineSpec{
-					Cpu:  1,
-					Io:   1,
-					Sock: 1,
+					Cpu:   1,
+					Io:    1,
+					Sock:  1,
+					Image: "quay.io/jcastillolema/stressng:0.14.01",
 				},
 			}
 			Expect(k8sClient.Create(ctx, baseline)).Should(Succeed())
@@ -50,17 +52,17 @@ var _ = Describe("Baseline controller", func() {
 			createdBaseline := &perfv1.Baseline{}
 
 			// We'll need to retry getting this newly created Baseline, given that creation may not immediately happen.
-			Eventually(func() bool {
+			Eventually(func() (bool, error) {
 				err := k8sClient.Get(ctx, baselineLookupKey, createdBaseline)
 				if err != nil {
-					return false
+					return false, err
 				}
-				return true
+				return createdBaseline.Status.Command != "", nil
 			}, timeout, interval).Should(BeTrue())
+
+			//Eventually(komega.Object(baseline)).Should(HaveField("Status.Command", Not(BeEmpty())))
 			// Let's make sure our command string value was properly converted/handled.
-			fmt.Println("lar")
-			fmt.Println(createdBaseline)
-			Expect(createdBaseline.Status.Command).Should(Equal(""))
+			Expect(createdBaseline.Status.Command).Should(Equal("stress-ng -t 0 --cpu 1 --io 1 --sock 1 --sock-if eth0"))
 		})
 	})
 
