@@ -2,15 +2,13 @@ package controllers
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-
-	// "sigs.k8s.io/controller-runtime/pkg/envtest/komega"
+	"sigs.k8s.io/controller-runtime/pkg/envtest/komega"
 
 	perfv1 "github.com/josecastillolema/baseline-operator/api/v1"
 )
@@ -50,22 +48,7 @@ var _ = Describe("Baseline controller", func() {
 				},
 			}
 			Expect(k8sClient.Create(ctx, baseline)).Should(Succeed())
-
-			baselineLookupKey := types.NamespacedName{Name: BaselineName, Namespace: BaselineNamespace}
-			createdBaseline := &perfv1.Baseline{}
-
-			// We'll need to retry getting this newly created Baseline, given that creation may not immediately happen.
-			Eventually(func() (bool, error) {
-				err := k8sClient.Get(ctx, baselineLookupKey, createdBaseline)
-				if err != nil {
-					return false, err
-				}
-				return createdBaseline.Status.Command != "", nil
-			}, timeout, interval).Should(BeTrue())
-
-			//Eventually(komega.Object(baseline)).Should(HaveField("Status.Command", Not(BeEmpty())))
-			// Let's make sure our command string value was properly converted/handled.
-			Expect(createdBaseline.Status.Command).Should(Equal("stress-ng -t 0 --cpu 1 --vm 1 --vm-bytes 1G --io 1 --sock 1 --sock-if eth0 --timer 1"))
+			Eventually(komega.Object(baseline)).Should(HaveField("Status.Command", Equal("stress-ng -t 0 --cpu 1 --vm 1 --vm-bytes 1G --io 1 --sock 1 --sock-if eth0 --timer 1")))
 		})
 	})
 
@@ -83,18 +66,7 @@ var _ = Describe("Baseline controller", func() {
 			createdBaseline.Spec.Memory = "2G"
 			createdBaseline.Spec.Custom = "--timer 2"
 			Expect(k8sClient.Update(ctx, createdBaseline)).Should(Succeed())
-
-			// We'll need to retry getting this newly updated Baseline, given that update may not immediately happen.
-			Eventually(func() (bool, error) {
-				err := k8sClient.Get(ctx, baselineLookupKey, createdBaseline)
-				if err != nil {
-					return false, err
-				}
-				return strings.Contains(createdBaseline.Status.Command, "--cpu 2 --vm 1 --vm-bytes 2G"), nil
-			}, timeout, interval).Should(BeTrue())
-
-			// Let's make sure our command string value was properly converted/handled.
-			Expect(createdBaseline.Status.Command).Should(Equal("stress-ng -t 0 --cpu 2 --vm 1 --vm-bytes 2G --io 1 --sock 1 --sock-if eth0 --timer 2"))
+			Eventually(komega.Object(createdBaseline)).Should(HaveField("Status.Command", Equal("stress-ng -t 0 --cpu 2 --vm 1 --vm-bytes 2G --io 1 --sock 1 --sock-if eth0 --timer 2")))
 		})
 	})
 
@@ -110,18 +82,7 @@ var _ = Describe("Baseline controller", func() {
 
 			createdBaseline.Spec.Custom = ""
 			Expect(k8sClient.Update(ctx, createdBaseline)).Should(Succeed())
-
-			// We'll need to retry getting this newly updated Baseline, given that update may not immediately happen.
-			Eventually(func() (bool, error) {
-				err := k8sClient.Get(ctx, baselineLookupKey, createdBaseline)
-				if err != nil {
-					return false, err
-				}
-				return !strings.Contains(createdBaseline.Status.Command, "--timer"), nil
-			}, timeout, interval).Should(BeTrue())
-
-			// Let's make sure our command string value was properly converted/handled.
-			Expect(createdBaseline.Status.Command).Should(Equal("stress-ng -t 0 --cpu 2 --vm 1 --vm-bytes 2G --io 1 --sock 1 --sock-if eth0"))
+			Eventually(komega.Object(createdBaseline)).Should(HaveField("Status.Command", Equal("stress-ng -t 0 --cpu 2 --vm 1 --vm-bytes 2G --io 1 --sock 1 --sock-if eth0")))
 		})
 	})
 
