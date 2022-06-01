@@ -45,7 +45,7 @@ spec:
               cpu:
                 description: Cpu is the the number of cores
                 format: int32
-                minimum: 1
+                minimum: 0
                 type: integer
               custom:
                 description: Custom is a custom string to pass to stress-ng
@@ -58,7 +58,7 @@ spec:
               io:
                 description: Cpu is the the number of cores
                 format: int32
-                minimum: 1
+                minimum: 0
                 type: integer
               mem:
                 description: Memory is the ammount of memory
@@ -70,7 +70,7 @@ spec:
               sock:
                 description: Sock is the number of workers exercising socket I/O networking
                 format: int32
-                minimum: 1
+                minimum: 0
                 type: integer
               tolerations:
                 items:

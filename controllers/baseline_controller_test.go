@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -19,10 +18,6 @@ var _ = Describe("Baseline controller", func() {
 	const (
 		BaselineName      = "test-baseline"
 		BaselineNamespace = "default"
-
-		timeout  = time.Second * 10
-		duration = time.Second * 10
-		interval = time.Millisecond * 250
 	)
 
 	Context("Creating a Baseline CRD", func() {
@@ -39,7 +34,7 @@ var _ = Describe("Baseline controller", func() {
 					Namespace: BaselineNamespace,
 				},
 				Spec: perfv1.BaselineSpec{
-					Cpu:    1,
+					Cpu:    new(int32),
 					Memory: "1G",
 					Io:     1,
 					Sock:   1,
@@ -48,7 +43,7 @@ var _ = Describe("Baseline controller", func() {
 				},
 			}
 			Expect(k8sClient.Create(ctx, baseline)).Should(Succeed())
-			Eventually(komega.Object(baseline)).Should(HaveField("Status.Command", Equal("stress-ng -t 0 --cpu 1 --vm 1 --vm-bytes 1G --io 1 --sock 1 --sock-if eth0 --timer 1")))
+			Eventually(komega.Object(baseline)).Should(HaveField("Status.Command", Equal("stress-ng -t 0 --cpu 0 --vm 1 --vm-bytes 1G --io 1 --sock 1 --sock-if eth0 --timer 1")))
 		})
 	})
 
@@ -62,7 +57,7 @@ var _ = Describe("Baseline controller", func() {
 				panic("Baseline object should exist from previous test")
 			}
 
-			createdBaseline.Spec.Cpu = 2
+			*createdBaseline.Spec.Cpu = 2
 			createdBaseline.Spec.Memory = "2G"
 			createdBaseline.Spec.Custom = "--timer 2"
 			Expect(k8sClient.Update(ctx, createdBaseline)).Should(Succeed())
@@ -86,9 +81,9 @@ var _ = Describe("Baseline controller", func() {
 		})
 	})
 
-	/* Context("Removing a Baseline CRD CPU field", func() {
+	Context("Removing a Baseline CRD CPU field", func() {
 		It("Should accordingly update the status field", func() {
-			By("By setting to zero the existing Baseline CPU field")
+			By("By removing the existing Baseline CPU field")
 			baselineLookupKey := types.NamespacedName{Name: BaselineName, Namespace: BaselineNamespace}
 			createdBaseline := &perfv1.Baseline{}
 			err := k8sClient.Get(ctx, baselineLookupKey, createdBaseline)
@@ -96,21 +91,73 @@ var _ = Describe("Baseline controller", func() {
 				panic("Baseline object should exist from previous test")
 			}
 
-			createdBaseline.Spec.Cpu = 0
+			createdBaseline.Spec.Cpu = nil
 			Expect(k8sClient.Update(ctx, createdBaseline)).Should(Succeed())
-
-			// We'll need to retry getting this newly updated Baseline, given that update may not immediately happen.
-			Eventually(func() (bool, error) {
-				err := k8sClient.Get(ctx, baselineLookupKey, createdBaseline)
-				if err != nil {
-					return false, err
-				}
-				return !strings.Contains(createdBaseline.Status.Command, "--cpu"), nil
-			}, timeout, interval).Should(BeTrue())
-
-			// Let's make sure our command string value was properly converted/handled.
-			Expect(createdBaseline.Status.Command).Should(Equal("stress-ng -t 0 --io 1 --sock 1 --sock-if eth0"))
+			Eventually(komega.Object(createdBaseline)).Should(HaveField("Status.Command", Equal("stress-ng -t 0 --vm 1 --vm-bytes 2G --io 1 --sock 1 --sock-if eth0")))
 		})
-	}) */
+	})
 
+	Context("Removing a Baseline CRD IO field", func() {
+		It("Should accordingly update the status field", func() {
+			By("By removing the existing Baseline IO field")
+			baselineLookupKey := types.NamespacedName{Name: BaselineName, Namespace: BaselineNamespace}
+			createdBaseline := &perfv1.Baseline{}
+			err := k8sClient.Get(ctx, baselineLookupKey, createdBaseline)
+			if err != nil {
+				panic("Baseline object should exist from previous test")
+			}
+
+			createdBaseline.Spec.Io = 0
+			Expect(k8sClient.Update(ctx, createdBaseline)).Should(Succeed())
+			Eventually(komega.Object(createdBaseline)).Should(HaveField("Status.Command", Equal("stress-ng -t 0 --vm 1 --vm-bytes 2G --sock 1 --sock-if eth0")))
+		})
+	})
+
+	Context("Removing a Baseline CRD Mem field", func() {
+		It("Should accordingly update the status field", func() {
+			By("By removing the existing Baseline Mem field")
+			baselineLookupKey := types.NamespacedName{Name: BaselineName, Namespace: BaselineNamespace}
+			createdBaseline := &perfv1.Baseline{}
+			err := k8sClient.Get(ctx, baselineLookupKey, createdBaseline)
+			if err != nil {
+				panic("Baseline object should exist from previous test")
+			}
+
+			createdBaseline.Spec.Memory = ""
+			Expect(k8sClient.Update(ctx, createdBaseline)).Should(Succeed())
+			Eventually(komega.Object(createdBaseline)).Should(HaveField("Status.Command", Equal("stress-ng -t 0 --sock 1 --sock-if eth0")))
+		})
+	})
+
+	Context("Adding a Baseline CRD CPU field", func() {
+		It("Should accordingly update the status field", func() {
+			By("By adding the existing Baseline CPU field")
+			baselineLookupKey := types.NamespacedName{Name: BaselineName, Namespace: BaselineNamespace}
+			createdBaseline := &perfv1.Baseline{}
+			err := k8sClient.Get(ctx, baselineLookupKey, createdBaseline)
+			if err != nil {
+				panic("Baseline object should exist from previous test")
+			}
+
+			createdBaseline.Spec.Io = 1
+			Expect(k8sClient.Update(ctx, createdBaseline)).Should(Succeed())
+			Eventually(komega.Object(createdBaseline)).Should(HaveField("Status.Command", Equal("stress-ng -t 0 --io 1 --sock 1 --sock-if eth0")))
+		})
+	})
+
+	Context("Removing a Baseline CRD Sock field", func() {
+		It("Should accordingly update the status field", func() {
+			By("By removing the existing Baseline Sock field")
+			baselineLookupKey := types.NamespacedName{Name: BaselineName, Namespace: BaselineNamespace}
+			createdBaseline := &perfv1.Baseline{}
+			err := k8sClient.Get(ctx, baselineLookupKey, createdBaseline)
+			if err != nil {
+				panic("Baseline object should exist from previous test")
+			}
+
+			createdBaseline.Spec.Sock = 0
+			Expect(k8sClient.Update(ctx, createdBaseline)).Should(Succeed())
+			Eventually(komega.Object(createdBaseline)).Should(HaveField("Status.Command", Equal("stress-ng -t 0 --io 1")))
+		})
+	})
 })

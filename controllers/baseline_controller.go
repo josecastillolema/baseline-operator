@@ -124,8 +124,13 @@ func (r *BaselineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	}
 
 	// Ensure the stressng parameters are the same as in the spec
-	command := *&found.Spec.Template.Spec.Containers[0].Command
-	cpu := baseline.Spec.Cpu
+	command := found.Spec.Template.Spec.Containers[0].Command
+	// updateCpu := false
+	var cpu int32 = 0
+	if baseline.Spec.Cpu != nil {
+		cpu = *baseline.Spec.Cpu
+		//updateCpu = needForUpdateInt(command, cpu, "--cpu")
+	}
 	mem := baseline.Spec.Memory
 	io := baseline.Spec.Io
 	sock := baseline.Spec.Sock
@@ -193,15 +198,28 @@ func present(commands []string, item string, value string, shift int) bool {
 // daemonsetForBaseline returns a baseline DaemonSet object
 func (r *BaselineReconciler) daemonsetForBaseline(b *perfv1.Baseline) (*appsv1.DaemonSet, string) {
 	ls := labelsForBaseline(b.Name)
-	cpu := strconv.Itoa(int(b.Spec.Cpu))
+	command := []string{"stress-ng", "-t", "0"}
+	//cpu := strconv.Itoa(int(b.Spec.Cpu))
+	if b.Spec.Cpu != nil {
+		cpu := strconv.Itoa(int(*b.Spec.Cpu))
+		command = append(command, "--cpu", cpu)
+	}
+
+	// if cronJob.Spec.StartingDeadlineSeconds != nil {
+	// 	// controller is not going to schedule anything below this point
+	// 	schedulingDeadline := now.Add(-time.Second * time.Duration(*cronJob.Spec.StartingDeadlineSeconds))
+
+	// 	if schedulingDeadline.After(earliestTime) {
+	// 		earliestTime = schedulingDeadline
+	// 	}
+	// }
 	mem := b.Spec.Memory
 	io := strconv.Itoa(int(b.Spec.Io))
 	sock := strconv.Itoa(int(b.Spec.Sock))
 	custom := b.Spec.Custom
-	command := []string{"stress-ng", "-t", "0"}
-	if cpu != "0" {
-		command = append(command, "--cpu", cpu)
-	}
+	// if cpu != "0" {
+	// 	command = append(command, "--cpu", cpu)
+	// }
 	if mem != "" {
 		command = append(command, "--vm", "1", "--vm-bytes", mem)
 	}

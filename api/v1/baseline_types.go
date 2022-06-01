@@ -27,18 +27,18 @@ import (
 // BaselineSpec defines the desired state of Baseline
 type BaselineSpec struct {
 	//+kubebuilder:validation:Optional
-	//+kubebuilder:validation:Minimum=1
+	//+kubebuilder:validation:Minimum=0
 	// Cpu is the the number of cores
-	Cpu int32 `json:"cpu"`
+	Cpu *int32 `json:"cpu"`
 	//+kubebuilder:validation:Optional
 	// Memory is the ammount of memory
 	Memory string `json:"mem"`
 	//+kubebuilder:validation:Optional
-	//+kubebuilder:validation:Minimum=1
+	//+kubebuilder:validation:Minimum=0
 	// Cpu is the the number of cores
 	Io int32 `json:"io"`
 	//+kubebuilder:validation:Optional
-	//+kubebuilder:validation:Minimum=1
+	//+kubebuilder:validation:Minimum=0
 	// Sock is the number of workers exercising socket I/O networking
 	Sock int32 `json:"sock"`
 	//+kubebuilder:validation:Optional
