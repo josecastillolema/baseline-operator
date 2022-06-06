@@ -71,7 +71,7 @@ type Baseline struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   BaselineSpec   `json:"spec,omitempty"`
+	Spec   BaselineSpec   `json:"spec"`
 	Status BaselineStatus `json:"status,omitempty"`
 }
 

@@ -61,7 +61,7 @@ spec:
                 minimum: 0
                 type: integer
               mem:
-                description: Memory is the ammount of memory
+                description: Memory is the amount of memory
                 type: string
               nodeSelector:
                 additionalProperties:
@@ -123,6 +123,8 @@ spec:
             - command
             - custom
             type: object
+        required:
+        - spec
         type: object
     served: true
     storage: true
