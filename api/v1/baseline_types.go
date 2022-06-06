@@ -31,7 +31,7 @@ type BaselineSpec struct {
 	// Cpu is the the number of cores
 	Cpu *int32 `json:"cpu"`
 	//+kubebuilder:validation:Optional
-	// Memory is the ammount of memory
+	// Memory is the amount of memory
 	Memory string `json:"mem"`
 	//+kubebuilder:validation:Optional
 	//+kubebuilder:validation:Minimum=0

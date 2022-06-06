@@ -205,14 +205,6 @@ func (r *BaselineReconciler) daemonsetForBaseline(b *perfv1.Baseline) (*appsv1.D
 		command = append(command, "--cpu", cpu)
 	}
 
-	// if cronJob.Spec.StartingDeadlineSeconds != nil {
-	// 	// controller is not going to schedule anything below this point
-	// 	schedulingDeadline := now.Add(-time.Second * time.Duration(*cronJob.Spec.StartingDeadlineSeconds))
-
-	// 	if schedulingDeadline.After(earliestTime) {
-	// 		earliestTime = schedulingDeadline
-	// 	}
-	// }
 	mem := b.Spec.Memory
 	io := strconv.Itoa(int(b.Spec.Io))
 	sock := strconv.Itoa(int(b.Spec.Sock))
